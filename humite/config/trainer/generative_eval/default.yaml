@@ -1,0 +1,46 @@
+# @package trainer.generative_eval
+
+output_dir: ${hydra:run.dir}/plots
+every_n_epochs: 1
+SanityCheckCallback: true
+
+
+sampling:
+  start_token_id: 0
+  temperature: 1.0
+  greedy: false
+  top_k: null
+  # top_p: null
+  # max_len: null  # prefer deriving from dataset if available
+  use_kv_cache: true
+  max_len: 1700
+  batch_size: 516
+  n_hits: ${dataset.pad_length}
+  use_n_hits_stop: false
+  stop_probability_threshold: 0.98
+  stop_source: "physics_stop" # "model_stop" or "physics_stop"
+  min_len: 0
+  force_n_hits_for_diagnostic: false
+  disable_compile: true
+
+n_val_gen_showers: 200
+generate_target_inc_energies: true
+plot_individual_showers: true
+artifacts: ["bundle", "images"]
+
+bins:
+  # Global features
+  cog_x: { min: 13.5, max: 15.5, count: 50 }
+  cog_y: { min: 13.5, max: 15.5, count: 50 }
+  cog_z: { min: 7, max: 23, count: 50 }
+  incident_energy: [10.0, 110.0, 35]
+  energy_sum: [0.0, 2000.0, 50]
+  energy_sum_over_incident_energy: [0.01, 0.07, 35]
+
+  # Point features (uncomment to fix ranges)
+  # x: { edges: [-0.5, 0.5, 1.5, 2.5, 3.5] }
+  energy: [0.0, 40.0, 50]
+  log_energy: [-5.0, 3.0, 50]
+  n_hits: [20, 1600, 50]
+  # Token/step features
+  # token_id: [0, 201, 202]

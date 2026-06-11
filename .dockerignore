@@ -1,0 +1,42 @@
+# Build context for docker/Dockerfile. Keep this lean: the image bakes in the
+# humite source (pip install), so only code + packaging metadata need to ship.
+# NOTE: docker/ is intentionally NOT ignored — the Dockerfile COPYs
+# docker/requirements.txt.
+
+# VCS / CI
+.git
+.github
+.pre-commit-config.yaml
+.gitattributes
+.gitignore
+
+# Secrets / local environment (must never leak into a published image)
+.env
+*.env
+
+# Large data, checkpoints, and run artifacts (2.9G checkpoints/ etc.)
+checkpoints/
+outputs/
+var/
+notebooks/
+images/
+*.sif
+*.h5
+*.hdf5
+*.ckpt
+*.npz
+
+# Comet / experiment run dirs
+.cometml-runs/
+
+# Python caches & build leftovers
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Editor / OS cruft
+.DS_Store

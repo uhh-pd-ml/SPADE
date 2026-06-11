@@ -1,0 +1,77 @@
+_target_: humite.core.config.schemas.DatasetConfig
+
+name: calorimeter_iterable
+# Directory containing the .h5 shower files. Override via the HUMITE_DATA_DIR
+# environment variable or on the command line (dataset.data_dir=...).
+data_dir: ${oc.env:HUMITE_DATA_DIR,/path/to/dataset}
+
+# File lists support glob patterns. Adjust the patterns to match your files.
+train_files:
+  EM:
+    - ${dataset.data_dir}/photons_10_100GeV_float32_sorted_train_part_*_of_16.h5
+val_files:
+  EM:
+    - ${dataset.data_dir}/photons_10_100GeV_float32_sorted_val_part_*_of_04.h5
+test_files:
+  EM:
+    - ${dataset.data_dir}/photons_10_100GeV_float32_sorted_test_part_*_of_04.h5
+
+# Loader/file controls
+max_n_files_per_type: null
+n_files_at_once: 1
+load_only_once: false
+shuffle_files: true
+shuffle_data: true
+seed: 44
+seed_shuffle_data: 2
+random_seed_for_per_file_shuffling: 42
+worker_row_sharding: true
+row_shard_mode: block
+use_ram_cache: false
+
+# Dataset/schema specifics
+dataset_type: ECAL
+sequence_sorting: layer_energy  # energy | layer | layer_energy | random | none
+
+# Geometry and padding
+pad_length: 1700
+nbins_x: 30
+nbins_y: 30
+nbins_z: 30
+nbins_total: ${eval:${.nbins_x} * ${.nbins_y} * ${.nbins_z}}
+
+# Tokenization and modes
+energy_threshold: 0.0
+use_energy_tokenization: false
+
+hierarchical: true
+axis_mode: split # options: interleaved | split | combined
+vocab_size_x: ${eval:${.nbins_x} + 2}
+vocab_size_y: ${eval:${.nbins_y} + 2}
+vocab_size_z: ${eval:${.nbins_z} + 2}
+vocab_size_total: ${eval:${.nbins_total} + 2}
+
+# Feature descriptions: both axis specs and energy transform live here
+# Vocab and energy transform
+energy_vocab_size: 64
+energy_min: -20.0
+energy_max: 20.0
+energy_log_scale: false
+
+# Legacy feature block (optional) kept for FeaturePreprocessor until refactor completes
+features:
+  energy:
+    subtract_by: -1.5
+    multiply_by: 0.91
+    func: np.log
+    inv_func: np.exp
+  incident_energy:
+    subtract_by: 50.0
+    multiply_by: 0.043
+    func:
+    inv_func:
+  n_hits:
+    subtract_by: 1000.0
+    multiply_by: 0.01
+    func:
+    inv_func:

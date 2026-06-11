@@ -1,0 +1,10 @@
+# Comet ML logger (used as Hydra group: logger=comet)
+_target_: lightning.pytorch.loggers.comet.CometLogger
+api_key: ${oc.env:COMET_API_TOKEN,''}
+save_dir: ${hydra:run.dir}
+project_name: ${log_folder_name}
+# Prefer the human bigram for the Comet experiment name; fall back to run_name
+experiment_name: ${coalesce:${bigram},${run_name}}
+experiment_key: null
+offline: ${eval:"'${oc.env:COMET_API_TOKEN,''}' == ''"}
+prefix: ""

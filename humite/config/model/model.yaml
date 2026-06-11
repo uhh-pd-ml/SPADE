@@ -1,0 +1,144 @@
+_target_: humite.core.registries.model_registry.build_model
+
+# Choose explicit model variant, or omit for heuristic selection
+
+transformer:
+  _target_: humite.core.models.gpt_decoder.TransformerConfig
+  embedding_dim: 256
+  num_layers: 3
+  num_heads: 8
+  mlp_ratio: 4.0
+  dropout: 0
+  attn_dropout: 0.0
+  bias: true
+  max_seq_len: ${dataset.pad_length}
+  use_flash_attention: true
+  use_multi_query_attention: true
+  attention_window: null
+  use_rope: true
+  use_parallel_residual: false
+  use_RMSNorm: false
+
+
+# Model-specific kwargs consumed by the factory
+kwargs:
+  # Per-axis model (default)
+  per_axis_vocab_sizes:
+    x: ${dataset.vocab_size_x}
+    y: ${dataset.vocab_size_y}
+    z: ${dataset.vocab_size_z}
+
+  vocab_size_total: ${dataset.vocab_size_total}
+
+  n_registers: 2
+  # incident energy conditioning controls
+  register_condition_incident_energy: false
+  zero_init_register_incident: false
+  use_incident_energy_feature: true
+  incident_energy_feature_dim: 16
+  incident_energy_dropout_p: 0.0
+  # hit energy controls
+  use_hit_energy_feature: true
+  # The n_hits feature
+  use_n_hits_register: false
+  use_n_hits_feature: false
+  n_hits_feature_dim: 16
+  n_hits_dropout_p: 0.0
+  zero_init_n_hits_feature: true
+  axis_mode: ${dataset.axis_mode}  # split | combined
+
+
+
+  energy_vocab_size: ${dataset.energy_vocab_size}
+  energy_min: ${dataset.energy_min}
+  energy_max: ${dataset.energy_max}
+  energy_log_scale: ${dataset.energy_log_scale}
+  energy_noise_rel_std: 0.1
+  use_mog_energy: true
+  mog_components: 4
+  token_pad_id: 0
+
+  hit_energy_dropout_p: 0.0
+  use_energy_tokenization: ${dataset.use_energy_tokenization}
+  energy_sample_min: ${dataset.energy_min}
+  energy_sample_max: ${dataset.energy_max}
+
+  # HCal resolution binning (active only with use_energy_tokenization=True).
+  # Use oc.select so existing dataset yamls without these fields keep working.
+  energy_binning_mode: ${oc.select:dataset.energy_binning_mode,uniform}
+  energy_hcal_A: ${oc.select:dataset.energy_hcal_A,0.50}
+  energy_hcal_B: ${oc.select:dataset.energy_hcal_B,0.0}
+  energy_hcal_C: ${oc.select:dataset.energy_hcal_C,0.02}
+  energy_hcal_step_sigma: ${oc.select:dataset.energy_hcal_step_sigma,0.5}
+  energy_hcal_e_min: ${oc.select:dataset.energy_hcal_e_min,0.001}
+  energy_hcal_e_max: ${oc.select:dataset.energy_hcal_e_max,150.0}
+  energy_label_smoothing: ${oc.select:dataset.energy_label_smoothing,none}
+
+  hierarchical_conditioning: false
+  hierarchical_axis_order: [z, x, y]
+  use_z_causal_mask: false
+  use_spatial_axis_sinusoid: false
+  spatial_axis_sinusoid_scale: 0.2
+  spatial_axis_sinusoid_axes: [x, y, z]
+
+
+  # Energy auxiliary loss controls
+  energy_loss_weight: 1.0
+  energy_loss_min_weight: 1.0
+  energy_loss_warmup_steps: 0
+
+  # Training mode: which components to train
+  # "all"                - backbone + physics_stop (default, parallel training)
+  # "backbone_only"      - backbone only; physics_stop is present but not trained
+  # "physics_stop_only"  - only physics_stop; backbone is frozen, its forward pass is skipped
+  #                        (data loading still uses backbone config for axis shifts)
+  training_mode: "all"
+
+  # PhysicsStop model (independent stop predictor trained in parallel)
+  use_physics_stop: true
+  physics_stop_embedding_dim: 16
+  physics_stop_energy_dim: 16
+  physics_stop_hidden_dim: 128
+  physics_stop_dropout_p: 0.2
+  physics_stop_num_layers: 2
+  physics_stop_lr: 3e-4
+  physics_stop_weight_decay: 0.04
+  physics_stop_loss_weight: 1.0
+  physics_stop_pos_weight: 1000   # 0 = auto-compute from batch class balance
+  physics_stop_min_hits: 16
+  physics_stop_use_position_feature: true
+  physics_stop_use_energy_sum: false
+  physics_stop_position_dim: 16
+  physics_stop_energy_sum_noise_sigma: 0.0
+  physics_stop_sampling_fraction: 0.0000225
+  physics_stop_use_hit_counter: true
+  physics_stop_hit_counter_log_scale: false
+  physics_stop_hit_counter_dim: 16
+  physics_stop_use_history: false
+  physics_stop_history_len: 10
+  physics_stop_history_dim: 32
+  # Auto-freezing controls (freeze backbone when stop head is strong and stable) only useful when training_mode = all
+  physics_stop_auto_freeze: true
+  physics_stop_freeze_min_epochs: 3 # Minimum number of epochs before auto-freeze can occur
+  physics_stop_freeze_patience: 4 # Number of consecutive non-improving validation epochs before freezing is considered.
+  physics_stop_freeze_min_delta: 1.0e-4 # Minimum change in validation stop loss to be considered an improvement. current_val_loss < best_val_loss - min_delta
+  physics_stop_freeze_min_recall: 0.0 # If > 0, freezing is blocked until recall reaches this threshold.
+                                      # If 0.0, gate is disabled.
+  physics_stop_freeze_min_precision: 0.0 # If > 0, freezing is blocked until precision reaches this threshold.
+                                         # If 0.0, gate is disabled.
+
+# Optimizer overrides (used by model registry when wrapping Lightning)
+optim:
+  optimizer_name: ranger # adamw | radam | plain_radam | ranger
+  lr: 1e-3
+  weight_decay: 0.005
+  betas: [0.95, 0.999] # optional; defaults depend on optimizer
+  eps: 1.0e-5 # optional
+  lookahead_alpha: 0.25 # ranger only
+  lookahead_k: 16 # ranger only
+  scheduler_name: warmup # none | cosine_warmup
+  scheduler_warmup_steps: 2000
+  scheduler_total_steps: ${trainer.max_steps}
+  scheduler_min_lr: 5e-6
+  backbone_lr_scale: 1.0
+  backbone_unfreeze_steps: 0
