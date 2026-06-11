@@ -4,7 +4,7 @@
 
 Joschka Birk, Frank Gaede, Anna Hallin, Gregor Kasieczka, Martina Mozzanica, Henning Rose
 
-[![arXiv](https://img.shields.io/badge/arXiv-00-b31b1b.svg)](https://arxiv.org/abs/2606.11304)
+[![arXiv](https://img.shields.io/badge/arXiv-2606.11304-b31b1b.svg)](https://arxiv.org/abs/2606.11304)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.2-orange)](https://pytorch.org)
 [![Lightning](https://img.shields.io/badge/Lightning-2.2-purple)](https://lightning.ai)
 [![Hydra](https://img.shields.io/badge/Hydra-1.3-blue)](https://hydra.cc)
