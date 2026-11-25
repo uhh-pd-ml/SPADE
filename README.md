@@ -70,20 +70,20 @@ humite/
 
 ## Installation
 
-Everything ships in one image on Docker Hub — `henningrose/humite:1.0.8` — with
+Everything ships in one image on Docker Hub — `henningrose/spade:1.0.1` — with
 all dependencies and the `humite` code baked in, so `humite-train` /
 `humite-generate` work out of the box. Just run it:
 
 ```sh
-docker run -it --rm henningrose/humite:1.0.8 bash
+docker run -it --rm henningrose/spade:1.0.1 bash
 ```
 
 No Docker (e.g. on an HPC cluster)? The same image runs via Singularity or
 podman — no local image file to build:
 
 ```sh
-singularity run --nv docker://henningrose/humite:1.0.8   # --nv exposes the GPU
-podman run -it --rm henningrose/humite:1.0.8 bash
+singularity run --nv docker://henningrose/spade:1.0.1   # --nv exposes the GPU
+podman run -it --rm henningrose/spade:1.0.1 bash
 ```
 
 Or install into your own Python environment (≥ 3.10): `pip install -e .`.
@@ -138,7 +138,7 @@ runs the published image straight from Docker Hub, no local image file needed
 and no `source activate` (the entry points are already on `PATH`):
 
 ```sh
-singularity exec --nv --bind /data:/data docker://henningrose/humite:1.0.8 \
+singularity exec --nv --bind /data:/data docker://henningrose/spade:1.0.1 \
     humite-train dataset.data_dir=/data/your_dataset
 ```
 
