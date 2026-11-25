@@ -2,8 +2,8 @@
 set -euo pipefail
 
 DOCKERHUB_USERNAME="henningrose"
-IMAGE_NAME="humite"
-TAG="${1:-latest}"
+IMAGE_NAME="spade"
+TAG="${1:-1.0.1}"
 
 docker run --rm -it \
   -p 8888:8888 \

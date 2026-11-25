@@ -41,5 +41,5 @@ jobs:
             COMMIT=${{ steps.meta.outputs.commit }}
             BUILD_DATE=${{ steps.meta.outputs.date }}
           tags: |
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/humite:${{ steps.meta.outputs.version }}
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/humite:latest
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/spade:${{ steps.meta.outputs.version }}
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/spade:latest

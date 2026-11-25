@@ -3,12 +3,12 @@ set -euo pipefail
 
 # Usage:
 #   ./docker/build_sif.sh latest
-#   ./docker/build_sif.sh 0.3.8
+#   ./docker/build_sif.sh 1.0.1
 
-TAG="${1:-latest}"
+TAG="${1:-1.0.1}"
 
 DOCKERHUB_USERNAME="henningrose"
-IMAGE_NAME="humite"
+IMAGE_NAME="spade"
 
 IMAGE="docker://docker.io/${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${TAG}"
 
